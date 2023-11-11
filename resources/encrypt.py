@@ -11,7 +11,7 @@ def encrypt_string(plaintext: str, key: bytes) -> bytes:
 
 def derive_key(password: str):
     password_bytes = password.encode('utf-8')
-    return base64.b64encode(sha256(password_bytes).digest())
+    return base64.urlsafe_b64encode(sha256(password_bytes).digest())
 
 def encrypt_json(json_data, encryption_key):
     # Convert the JSON data to a string
