@@ -24,7 +24,12 @@ def encrypt_json(json_data, encryption_key):
     ciphertext = Fernet(key).encrypt(json_string.encode())
 
     # Combine IV and ciphertext
-    encrypted_data = base64.b64encode(ciphertext).decode('utf-8')
+    encrypted_data = ciphertext.decode('utf-8')
+
+    print("ciphertext")
+    print(ciphertext)
+    print("encrypted_data")
+    print(encrypted_data)
 
     return encrypted_data
 
