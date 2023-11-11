@@ -4,21 +4,14 @@ import json
 from cryptography.hazmat.primitives import hashes
 import base64
 from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from hashlib import sha256
 
 def encrypt_string(plaintext: str, key: bytes) -> bytes:
     return Fernet(key).encrypt(plaintext.encode())
 
 def derive_key(password: str):
     password_bytes = password.encode('utf-8')
-    salt = os.urandom(16)
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=390000,
-    )
-    return base64.urlsafe_b64encode(kdf.derive(password_bytes))
+    return base64.urlsafe_b64encode(sha256(password_bytes).digest())
 
 def encrypt_json(json_data, encryption_key):
     # Convert the JSON data to a string
