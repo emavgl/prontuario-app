@@ -1,45 +1,28 @@
 import sys
-import os
-import json
-from cryptography.hazmat.primitives import hashes
 import base64
+import json
 from cryptography.fernet import Fernet
-from hashlib import sha256
-
-def encrypt_string(plaintext: str, key: bytes) -> bytes:
-    return Fernet(key).encrypt(plaintext.encode())
-
-def derive_key(password: str):
-    password_bytes = password.encode('utf-8')
-    return base64.urlsafe_b64encode(sha256(password_bytes).digest())
 
 def encrypt_json(json_data, encryption_key):
     # Convert the JSON data to a string
     json_string = json.dumps(json_data)
 
-    # Derive a key of appropriate length
-    key = derive_key(encryption_key)
-
     # Encrypt the JSON string using AES-GCM
-    ciphertext = Fernet(key).encrypt(json_string.encode())
+    ciphertext = Fernet(encryption_key).encrypt(json_string.encode())
 
     # Combine IV and ciphertext
     encrypted_data = ciphertext.decode('utf-8')
-
-    print("ciphertext")
-    print(ciphertext)
-    print("encrypted_data")
-    print(encrypted_data)
 
     return encrypted_data
 
 def main():
     # Check if the input file path is provided
-    if len(sys.argv) != 2:
-        print("Usage: python script.py input_file_path")
+    if len(sys.argv) != 3:
+        print("Usage: python script.py input_file_path encryption_key_path")
         sys.exit(1)
 
     input_file_path = sys.argv[1]
+    encryption_key_path = sys.argv[2]
 
     try:
         # Read JSON data from the input file
@@ -49,11 +32,13 @@ def main():
         print(f"Error: {e}")
         sys.exit(1)
 
-    # Retrieve the encryption key from the environment variable
-    encryption_key = os.environ.get('PRONTUARIO_ENC_KEY')
-
-    if not encryption_key:
-        print("Error: PRONTUARIO_ENC_KEY environment variable not set.")
+    try:
+        # Read JSON data from the input file
+        with open(encryption_key_path, 'r') as input_file:
+            encryption_key = bytes(input_file.read(), 'utf-8')
+            print(encryption_key)
+    except (FileNotFoundError) as e:
+        print(f"Error: {e}")
         sys.exit(1)
 
     # Encrypt the JSON data
