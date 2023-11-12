@@ -1,5 +1,5 @@
 import sys
-import base64
+import gzip
 import json
 from cryptography.fernet import Fernet
 
@@ -7,8 +7,9 @@ def encrypt_json(json_data, encryption_key):
     # Convert the JSON data to a string
     json_string = json.dumps(json_data)
 
-    # Encrypt the JSON string using AES-GCM
-    ciphertext = Fernet(encryption_key).encrypt(json_string.encode())
+    compressed_value = gzip.compress(bytes(json_string, 'utf-8'))
+
+    ciphertext = Fernet(encryption_key).encrypt(compressed_value)
 
     # Combine IV and ciphertext
     encrypted_data = ciphertext.decode('utf-8')
